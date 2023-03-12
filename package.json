@@ -1,7 +1,7 @@
 {
   "name": "trpc-message-passing",
   "version": "0.0.1",
-  "description": "tRPC adapter for Web Workers and iFrames",
+  "description": "tRPC adapter for message passing",
   "author": "Winston Yeo <winstonyeo99@gmail.com>",
   "private": false,
   "license": "MIT",
@@ -20,6 +20,7 @@
   "scripts": {
     "test": "tsup && jest --verbose",
     "build": "tsup",
+    "dev": "tsup --watch",
     "lint": "tsc"
   },
   "peerDependencies": {
@@ -31,7 +32,6 @@
     "@trivago/prettier-plugin-sort-imports": "^4.0.0",
     "@trpc/client": "^10.15.0",
     "@trpc/server": "^10.15.0",
-    "@types/chrome": "^0.0.203",
     "@types/jest": "^29.2.3",
     "@types/node": "^18.11.9",
     "@typescript-eslint/eslint-plugin": "^5.44.0",

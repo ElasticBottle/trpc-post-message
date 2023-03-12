@@ -5,7 +5,6 @@ specifiers:
   '@trivago/prettier-plugin-sort-imports': ^4.0.0
   '@trpc/client': ^10.15.0
   '@trpc/server': ^10.15.0
-  '@types/chrome': ^0.0.203
   '@types/jest': ^29.2.3
   '@types/node': ^18.11.9
   '@typescript-eslint/eslint-plugin': ^5.44.0
@@ -31,7 +30,6 @@ devDependencies:
   '@trivago/prettier-plugin-sort-imports': 4.1.1_prettier@2.8.4
   '@trpc/client': 10.15.0_@trpc+server@10.15.0
   '@trpc/server': 10.15.0
-  '@types/chrome': 0.0.203
   '@types/jest': 29.4.0
   '@types/node': 18.15.0
   '@typescript-eslint/eslint-plugin': 5.54.1_4rfaf6mlw2mmutqjcopwvbftpu
@@ -1296,31 +1294,10 @@ packages:
       '@babel/types': 7.21.2
     dev: true
 
-  /@types/chrome/0.0.203:
-    resolution: {integrity: sha512-JlQNebwpBETVc8U1Rr2inDFuOTtn0lahRAhnddx1dd0S5RrLAFJEEsyIu7AXI14mkCgSunksnuLGioH8kvBqRA==}
-    dependencies:
-      '@types/filesystem': 0.0.32
-      '@types/har-format': 1.2.10
-    dev: true
-
-  /@types/filesystem/0.0.32:
-    resolution: {integrity: sha512-Yuf4jR5YYMR2DVgwuCiP11s0xuVRyPKmz8vo6HBY3CGdeMj8af93CFZX+T82+VD1+UqHOxTq31lO7MI7lepBtQ==}
-    dependencies:
-      '@types/filewriter': 0.0.29
-    dev: true
-
-  /@types/filewriter/0.0.29:
-    resolution: {integrity: sha512-BsPXH/irW0ht0Ji6iw/jJaK8Lj3FJemon2gvEqHKpCdDCeemHa+rI3WBGq5z7cDMZgoLjY40oninGxqk+8NzNQ==}
-    dev: true
-
   /@types/graceful-fs/4.1.6:
     resolution: {integrity: sha512-Sig0SNORX9fdW+bQuTEovKj3uHcUL6LQKbCrrqb1X7J6/ReAbhCXRAhc+SMejhLELFj2QcyuxmUooZ4bt5ReSw==}
     dependencies:
       '@types/node': 18.15.0
-    dev: true
-
-  /@types/har-format/1.2.10:
-    resolution: {integrity: sha512-o0J30wqycjF5miWDKYKKzzOU1ZTLuA42HZ4HE7/zqTOc/jTLdQ5NhYWvsRQo45Nfi1KHoRdNhteSI4BAxTF1Pg==}
     dev: true
 
   /@types/is-ci/3.0.0:
