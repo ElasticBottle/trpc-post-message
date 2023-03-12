@@ -33,29 +33,17 @@ export type CreateMessagePassingHandlerOptions<TRouter extends AnyRouter> =
       message: TRPCMessagePassingResponse;
       opts: { event?: MessageEvent };
     }) => void;
-    removeEventListener: MessagePassingEventListener;
     addEventListener: MessagePassingEventListener;
   };
 
 export const createMessagePassingHandler = <TRouter extends AnyRouter>(
   opts: CreateMessagePassingHandlerOptions<TRouter>,
 ) => {
-  const {
-    router,
-    createContext,
-    onError,
-    addEventListener,
-    postMessage,
-    removeEventListener,
-  } = opts;
+  const { router, createContext, onError, addEventListener, postMessage } =
+    opts;
   const { transformer } = router._def._config;
 
   const subscriptions = new Map<number | string, Unsubscribable>();
-  const listeners: (() => void)[] = [];
-
-  const onDisconnect = () => {
-    listeners.forEach((unsub) => unsub());
-  };
 
   const onMessage: Parameters<MessagePassingEventListener>[1] = async (
     event,
@@ -247,5 +235,5 @@ export const createMessagePassingHandler = <TRouter extends AnyRouter>(
     }
   };
 
-  window.addEventListener("message", onMessage);
+  addEventListener("message", onMessage);
 };
