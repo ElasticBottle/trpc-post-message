@@ -2,30 +2,31 @@ name: CI
 on:
   push:
     branches:
-      - '**'
+      - "**"
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - name: checkout branch
-      - uses: actions/checkout@v3
+        uses: actions/checkout@v3
 
       - name: install pnpm package manager
-      - uses: pnpm/action-setup@v2
+        uses: pnpm/action-setup@v2
         with:
           version: 7
+
       - name: set-up with node 18
-      - uses: actions/setup-node@v3
+        uses: actions/setup-node@v3
         with:
           node-version: 18.x
-          cache: 'pnpm'
+          cache: "pnpm"
 
       - name: install deps
-      - run: pnpm install --frozen-lockfile
+        run: pnpm install --frozen-lockfile
 
       - name: lint
-      - run: pnpm run lint
+        run: pnpm run lint
 
       - name: build
-      - run: pnpm run build
+        run: pnpm run build
