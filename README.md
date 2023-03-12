@@ -45,8 +45,16 @@ const appRouter = t.router({
 export type AppRouter = typeof appRouter;
 
 createMessagePassingHandler({
-  router: appRouter /* 👈 */,
-});
+  router: appRouter,
+  postMessage: ({ message }) => window.postMessage(message, "your_targeted_url"),
+  addEventListener: (listener) =>
+    window.addEventListener("message", (e) => {
+      if (e.origin !== 'your_whitelisted_domain') {
+        return;
+      }
+      listener(e);
+    }),
+}); /* 👈 */,
 ```
 
 **3. Add a `messagePassingLink` to the client in your content script.**
@@ -59,7 +67,20 @@ import { messagePassingLink } from "trpc-message-passing/link";
 import type { AppRouter } from "./background";
 
 export const messagePassingClient = createTRPCClient<AppRouter>({
-  links: [messagePassingLink({ frame: window, targetOrigin: "*" })], /* 👈 */,
+  links: [
+    messagePassingLink({
+      postMessage: ({ message }) => window.postMessage(message, "your_targeted_url"),
+      addEventListener: (listener) =>
+        window.addEventListener("message", (e) => {
+          if (e.origin !== 'your_whitelisted_domain') {
+            return;
+          }
+          listener(e);
+        }),
+      removeEventListener: (listener) =>
+        window.removeEventListener("message", listener),
+    }),
+  ], /* 👈 */,
 });
 ```
 
@@ -76,22 +97,22 @@ Peer dependencies:
 
 Please see [full typings here](src/link/index.ts).
 
-| Property           | Type       | Description                                               | Required |
-| ------------------ | ---------- | --------------------------------------------------------- | -------- |
-| `postMessage`      | `Function` | Called to send data to the "server".                      | `true`   |
-| `addEventListener` | `Function` | Called add listener to receive request from the "server". | `true`   |
+| Property           | Type       | Description                                                                  | Required |
+| ------------------ | ---------- | ---------------------------------------------------------------------------- | -------- |
+| `postMessage`      | `Function` | Called to send data to the "server". You must send the `message` param as is | `true`   |
+| `addEventListener` | `Function` | Called to add listener to receive request from the "server".                 | `true`   |
 
 ### CreateMessagePassingHandlerOptions
 
 Please see [full typings here](src/adapter/index.ts).
 
-| Property           | Type       | Description                                               | Required |
-| ------------------ | ---------- | --------------------------------------------------------- | -------- |
-| `router`           | `Router`   | Your application tRPC router.                             | `true`   |
-| `postMessage`      | `Function` | Called to send data to the "client".                      | `true`   |
-| `addEventListener` | `Function` | Called add listener to receive request from the "client". | `true`   |
-| `createContext`    | `Function` | Passes contextual (`ctx`) data to procedure resolvers.    | `false`  |
-| `onError`          | `Function` | Called if error occurs inside handler.                    | `false`  |
+| Property           | Type       | Description                                                                  | Required |
+| ------------------ | ---------- | ---------------------------------------------------------------------------- | -------- |
+| `router`           | `Router`   | Your application tRPC router.                                                | `true`   |
+| `postMessage`      | `Function` | Called to send data to the "client". You must send the `message` param as is | `true`   |
+| `addEventListener` | `Function` | Called to add listener to receive request from the "client".                 | `true`   |
+| `createContext`    | `Function` | Passes contextual (`ctx`) data to procedure resolvers.                       | `false`  |
+| `onError`          | `Function` | Called if error occurs inside handler.                                       | `false`  |
 
 ---
 
