@@ -1,68 +1,37 @@
-/* eslint-disable @typescript-eslint/no-unsafe-argument */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/no-unsafe-return */
+type OnMessageEventListener = (event: MessageEvent) => void;
 
-type OnMessageListener = (message: any) => void;
-type OnConnectListener = (port: any) => void;
+const getMockWindow = jest.fn(() => {
+  const onEventListeners: Record<string, OnMessageEventListener[]> = {};
 
-const getMockChrome = jest.fn(() => {
-  const linkPortOnMessageListeners: OnMessageListener[] = [];
-  const handlerPortOnMessageListeners: OnMessageListener[] = [];
-  const handlerPortOnConnectListeners: OnConnectListener[] = [];
+  jest
+    .spyOn(window, "addEventListener")
+    .mockImplementation((event, handler, options) => {
+      const currentListeners = onEventListeners[event] || [];
+      if ("handleEvent" in handler) {
+        currentListeners.push(handler.handleEvent);
+      } else {
+        currentListeners.push(handler);
+      }
+      onEventListeners[event] = currentListeners;
+    });
+  jest
+    .spyOn(window, "removeEventListener")
+    .mockImplementation((event, handler, options) => {});
+  jest.spyOn(window, "postMessage").mockImplementation((message, options) => {
+    const event = new MessageEvent("", {
+      data: message,
+      source: this,
+      origin: window.location.href,
+    });
 
-  return {
-    addEventListener: jest.fn((event, ) => {
-
-    }),
-    runtime: {
-      connect: jest.fn(() => {
-        const handlerPort = {
-          postMessage: jest.fn((message) => {
-            linkPortOnMessageListeners.forEach((listener) => listener(message));
-          }),
-          onMessage: {
-            addListener: jest.fn((listener) => {
-              handlerPortOnMessageListeners.push(listener);
-            }),
-            removeListener: jest.fn(),
-          },
-          onDisconnect: {
-            addListener: jest.fn(),
-            removeListener: jest.fn(),
-          },
-        };
-
-        const linkPort = {
-          postMessage: jest.fn((message) => {
-            handlerPortOnMessageListeners.forEach((listener) => listener(message));
-          }),
-          onMessage: {
-            addListener: jest.fn((listener) => {
-              linkPortOnMessageListeners.push(listener);
-            }),
-            removeListener: jest.fn(),
-          },
-          onDisconnect: {
-            addListener: jest.fn(),
-            removeListener: jest.fn(),
-          },
-        };
-
-        handlerPortOnConnectListeners.forEach((listener) => listener(handlerPort));
-
-        return linkPort;
-      }),
-      onConnect: {
-        addListener: jest.fn((listener) => {
-          handlerPortOnConnectListeners.push(listener);
-        }),
-      },
-    },
-  };
+    onEventListeners["message"]?.forEach((listener) => {
+      listener(event);
+    });
+  });
 });
 
 export const resetMocks = () => {
-  global.window = getMockChrome();
+  getMockWindow();
 };
 
 resetMocks();

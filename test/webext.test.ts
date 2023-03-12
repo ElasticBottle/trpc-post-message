@@ -6,8 +6,10 @@ import { observable, Unsubscribable } from "@trpc/server/observable";
 import { z } from "zod";
 
 import { createPostMessageHandler } from "../src/adapter";
+import { PostMessageLink } from "../src/link";
 
 afterEach(() => {
+  jest.clearAllMocks();
   resetMocks();
 });
 
@@ -46,34 +48,36 @@ const appRouter = t.router({
 
 test("with query", async () => {
   // background
-  jest
-    .spyOn(window, "addEventListener")
-    .mockImplementationOnce((event, handler, options) => {
-      const gen = handler({
-        data: { action: "authentication", access: "123", refresh: "abc" },
-      });
-      rval = gen.next().value;
-    });
-
   createPostMessageHandler({
     router: appRouter,
     addEventListener(listener) {
-      window.addEventListener("message", listener);
+      window.addEventListener("message", (event) => {
+        listener(event);
+      });
     },
-    postMessage({ message, opts }) {
-      if (opts.event.source) {
-        opts.event.source.postMessage(message, {});
-      } else {
-        window.postMessage(message, "*");
-      }
+    postMessage({ message }) {
+      window.postMessage(message, "*");
     },
   });
-  expect(chrome.runtime.onConnect.addListener).toHaveBeenCalledTimes(1);
+  expect(window.addEventListener).toHaveBeenCalledTimes(1);
 
   // content
-  const port = chrome.runtime.connect();
   const trpc = createTRPCProxyClient<typeof appRouter>({
-    links: [chromeLink({ port })],
+    links: [
+      PostMessageLink({
+        addEventListener(listener) {
+          window.addEventListener("message", (event) => {
+            listener(event);
+          });
+        },
+        postMessage({ message }) {
+          window.postMessage(message, "*");
+        },
+        removeEventListener(listener) {
+          window.removeEventListener("message", listener);
+        },
+      }),
+    ],
   });
 
   const data1 = await trpc.echoQuery.query({ payload: "query1" });
@@ -92,13 +96,36 @@ test("with query", async () => {
 
 test("with mutation", async () => {
   // background
-  createChromeHandler({ router: appRouter });
-  expect(chrome.runtime.onConnect.addListener).toHaveBeenCalledTimes(1);
+  createPostMessageHandler({
+    router: appRouter,
+    addEventListener(listener) {
+      window.addEventListener("message", (event) => {
+        listener(event);
+      });
+    },
+    postMessage({ message }) {
+      window.postMessage(message, "*");
+    },
+  });
+  expect(window.addEventListener).toHaveBeenCalledTimes(1);
 
   // content
-  const port = chrome.runtime.connect();
   const trpc = createTRPCProxyClient<typeof appRouter>({
-    links: [chromeLink({ port })],
+    links: [
+      PostMessageLink({
+        addEventListener(listener) {
+          window.addEventListener("message", (event) => {
+            listener(event);
+          });
+        },
+        postMessage({ message }) {
+          window.postMessage(message, "*");
+        },
+        removeEventListener(listener) {
+          window.removeEventListener("message", listener);
+        },
+      }),
+    ],
   });
 
   const data1 = await trpc.echoMutation.mutate({ payload: "mutation1" });
@@ -119,13 +146,36 @@ test("with mutation", async () => {
 
 test("with subscription", async () => {
   // background
-  createChromeHandler({ router: appRouter });
-  expect(chrome.runtime.onConnect.addListener).toHaveBeenCalledTimes(1);
+  createPostMessageHandler({
+    router: appRouter,
+    addEventListener(listener) {
+      window.addEventListener("message", (event) => {
+        listener(event);
+      });
+    },
+    postMessage({ message }) {
+      window.postMessage(message, "*");
+    },
+  });
+  expect(window.addEventListener).toHaveBeenCalledTimes(1);
 
   // content
-  const port = chrome.runtime.connect();
   const trpc = createTRPCProxyClient<typeof appRouter>({
-    links: [chromeLink({ port })],
+    links: [
+      PostMessageLink({
+        addEventListener(listener) {
+          window.addEventListener("message", (event) => {
+            listener(event);
+          });
+        },
+        postMessage({ message }) {
+          window.postMessage(message, "*");
+        },
+        removeEventListener(listener) {
+          window.removeEventListener("message", listener);
+        },
+      }),
+    ],
   });
 
   const onDataMock = jest.fn();
@@ -162,8 +212,8 @@ test("with subscription", async () => {
   expect(onStoppedMock).toHaveBeenCalledTimes(1);
 });
 
-// with subscription
 // with error
 // with createcontext
 // with output
-// with multiport
+// with MessageChannel
+// with Workers
