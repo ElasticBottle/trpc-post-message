@@ -2,7 +2,10 @@ import { TRPCClientError, TRPCLink } from "@trpc/client";
 import type { AnyRouter } from "@trpc/server";
 import { observable } from "@trpc/server/observable";
 
-import type { TRPCMessagePassingRequest } from "../types";
+import type {
+  MessagePassingEventListener,
+  TRPCMessagePassingRequest,
+} from "../types";
 
 export type MessagePassingLinkOption = {
   frame: typeof window;
@@ -16,9 +19,13 @@ export const messagePassingLink = <TRouter extends AnyRouter>(
   console.log("window postMessage link being created");
 
   let resolvedOpts: {
-    type: "window" | "worker";
-    addEventListener: (listener: (e: MessageEvent) => any) => void;
-    removeEventListener: (listener: (e: MessageEvent) => any) => void;
+    type: "window";
+    addEventListener: (
+      listener: Parameters<MessagePassingEventListener>[1],
+    ) => void;
+    removeEventListener: (
+      listener: Parameters<MessagePassingEventListener>[1],
+    ) => void;
     postMessage: (message: TRPCMessagePassingRequest) => void;
   };
   if ("frame" in opts) {
@@ -79,15 +86,25 @@ export const messagePassingLink = <TRouter extends AnyRouter>(
             (typeof resolvedOpts)["addEventListener"]
           >[0] = (message) => {
             const { data, origin } = message;
-            if (origin)
-              if (!("trpc" in data)) {
-                return;
-              }
+
+            if (resolvedOpts.type === "window" && origin !== message.origin) {
+              return;
+            }
+
+            if (!("trpc" in data)) {
+              return;
+            }
             const { trpc } = data;
             if (!trpc) {
               return;
             }
-            if (!("id" in trpc) || trpc.id === null || trpc.id === undefined) {
+            if (
+              !("id" in trpc) ||
+              (typeof trpc.id !== "number" && typeof trpc.id !== "string")
+            ) {
+              return;
+            }
+            if ("jsonrpc" in trpc && trpc.jsonrpc !== "2.0") {
               return;
             }
             if (id !== trpc.id) {
