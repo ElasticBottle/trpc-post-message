@@ -8,66 +8,21 @@ import type {
 } from "../types";
 
 export type MessagePassingLinkOption = {
-  frame: typeof window;
-  targetOrigin: string;
-  channel?: MessageChannel;
+  postMessage: (args: { message: TRPCMessagePassingRequest }) => void;
+  addEventListener: MessagePassingEventListener;
+  removeEventListener: MessagePassingEventListener;
 };
 
 export const messagePassingLink = <TRouter extends AnyRouter>(
   opts: MessagePassingLinkOption,
 ): TRPCLink<TRouter> => {
-  console.log("window postMessage link being created");
-
-  let resolvedOpts: {
-    type: "window";
-    addEventListener: (
-      listener: Parameters<MessagePassingEventListener>[1],
-    ) => void;
-    removeEventListener: (
-      listener: Parameters<MessagePassingEventListener>[1],
-    ) => void;
-    postMessage: (message: TRPCMessagePassingRequest) => void;
-  };
-  if ("frame" in opts) {
-    let transferItems: Transferable[] = [];
-    let addEventListener: (typeof resolvedOpts)["addEventListener"] = (
-      eventListener,
-    ) => opts.frame.addEventListener("message", eventListener);
-    let removeEventListener: (typeof resolvedOpts)["removeEventListener"] = (
-      eventListener,
-    ) => opts.frame.removeEventListener("message", eventListener);
-
-    if (opts.channel) {
-      transferItems.push(opts.channel.port2);
-      addEventListener = (eventListener) => {
-        if (opts.channel) {
-          opts.channel.port1.addEventListener("message", eventListener);
-        }
-      };
-      removeEventListener = (eventListener) => {
-        if (opts.channel) {
-          opts.channel.port1.removeEventListener("message", eventListener);
-        }
-      };
-    }
-
-    resolvedOpts = {
-      type: "window",
-      addEventListener,
-      removeEventListener,
-      postMessage: (message) =>
-        opts.frame.postMessage(message, opts.targetOrigin, transferItems),
-    };
-  } else {
-    throw new Error("Cannot create messagePassingLink: Invalid params");
-  }
-
   console.log("window postMessage link created");
 
   return (runtime) => {
     // here we just got initialized in the app - this happens once per app
     // useful for storing cache for instance
     console.log(`init runtime ${runtime}`);
+    const { addEventListener, postMessage, removeEventListener } = opts;
 
     return ({ op }) => {
       console.log("op.context", op.context);
@@ -82,14 +37,10 @@ export const messagePassingLink = <TRouter extends AnyRouter>(
         try {
           const input = runtime.transformer.serialize(op.input);
 
-          const onMessage: Parameters<
-            (typeof resolvedOpts)["addEventListener"]
-          >[0] = (message) => {
-            const { data, origin } = message;
-
-            if (resolvedOpts.type === "window" && origin !== message.origin) {
-              return;
-            }
+          const onMessage: Parameters<MessagePassingEventListener>[0] = (
+            event,
+          ) => {
+            const { data } = event;
 
             if (!("trpc" in data)) {
               return;
@@ -135,15 +86,17 @@ export const messagePassingLink = <TRouter extends AnyRouter>(
             }
           };
 
-          resolvedOpts.addEventListener(onMessage);
-          listeners.push(() => resolvedOpts.removeEventListener(onMessage));
+          addEventListener(onMessage);
+          listeners.push(() => removeEventListener(onMessage));
 
-          resolvedOpts.postMessage({
-            trpc: {
-              id,
-              jsonrpc: undefined,
-              method: type,
-              params: { path, input },
+          postMessage({
+            message: {
+              trpc: {
+                id,
+                jsonrpc: undefined,
+                method: type,
+                params: { path, input },
+              },
             },
           });
         } catch (cause) {
@@ -157,11 +110,13 @@ export const messagePassingLink = <TRouter extends AnyRouter>(
         return () => {
           listeners.forEach((unsub) => unsub());
           if (type === "subscription") {
-            resolvedOpts.postMessage({
-              trpc: {
-                id,
-                jsonrpc: undefined,
-                method: "subscription.stop",
+            postMessage({
+              message: {
+                trpc: {
+                  id,
+                  jsonrpc: undefined,
+                  method: "subscription.stop",
+                },
               },
             });
           }
@@ -170,3 +125,18 @@ export const messagePassingLink = <TRouter extends AnyRouter>(
     };
   };
 };
+
+const test = [
+  messagePassingLink({
+    postMessage: ({ message }) => window.postMessage(message, "*"),
+    addEventListener: (listener) =>
+      window.addEventListener("message", (e) => {
+        if (e.origin !== location.href) {
+          return;
+        }
+        listener(e);
+      }),
+    removeEventListener: (listener) =>
+      window.removeEventListener("message", listener),
+  }),
+];

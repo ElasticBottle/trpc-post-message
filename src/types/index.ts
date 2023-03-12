@@ -5,7 +5,6 @@ import type {
 } from "@trpc/server/rpc";
 
 export type MessagePassingEventListener = (
-  event: string,
   listener: (e: MessageEvent) => any,
 ) => void;
 

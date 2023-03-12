@@ -45,7 +45,7 @@ export const createMessagePassingHandler = <TRouter extends AnyRouter>(
 
   const subscriptions = new Map<number | string, Unsubscribable>();
 
-  const onMessage: Parameters<MessagePassingEventListener>[1] = async (
+  const onMessage: Parameters<MessagePassingEventListener>[0] = async (
     event,
   ) => {
     // TODO: maybe check origin somehow?
@@ -235,5 +235,5 @@ export const createMessagePassingHandler = <TRouter extends AnyRouter>(
     }
   };
 
-  addEventListener("message", onMessage);
+  addEventListener(onMessage);
 };
