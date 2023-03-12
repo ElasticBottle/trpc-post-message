@@ -16,22 +16,15 @@ export type PostMessageLinkOption = {
 export const PostMessageLink = <TRouter extends AnyRouter>(
   opts: PostMessageLinkOption,
 ): TRPCLink<TRouter> => {
-  console.log("window postMessage link created");
-
   return (runtime) => {
     // here we just got initialized in the app - this happens once per app
     // useful for storing cache for instance
-    console.log(`init runtime ${runtime}`);
     const { addEventListener, postMessage, removeEventListener } = opts;
 
     return ({ op }) => {
-      console.log("op.context", op.context);
-
       return observable((observer) => {
         // why do we observe.complete immediately?
-        observer.complete();
         const listeners: (() => void)[] = [];
-
         const { id, type, path } = op;
 
         try {
@@ -55,7 +48,11 @@ export const PostMessageLink = <TRouter extends AnyRouter>(
             ) {
               return;
             }
-            if ("jsonrpc" in trpc && trpc.jsonrpc !== "2.0") {
+            if (
+              "jsonrpc" in trpc &&
+              trpc.jsonrpc !== "2.0" &&
+              trpc.jsonrpc !== undefined
+            ) {
               return;
             }
             if (id !== trpc.id) {
@@ -125,18 +122,3 @@ export const PostMessageLink = <TRouter extends AnyRouter>(
     };
   };
 };
-
-const test = [
-  PostMessageLink({
-    postMessage: ({ message }) => window.postMessage(message, "*"),
-    addEventListener: (listener) =>
-      window.addEventListener("message", (e) => {
-        if (e.origin !== location.href) {
-          return;
-        }
-        listener(e);
-      }),
-    removeEventListener: (listener) =>
-      window.removeEventListener("message", listener),
-  }),
-];

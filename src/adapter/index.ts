@@ -45,7 +45,6 @@ export const createPostMessageHandler = <TRouter extends AnyRouter>(
   const subscriptions = new Map<number | string, Unsubscribable>();
 
   const onMessage: Parameters<PostMessageEventListener>[0] = async (event) => {
-    // TODO: maybe check origin somehow?
     const { data } = event;
 
     if (!("trpc" in data)) {
@@ -61,7 +60,11 @@ export const createPostMessageHandler = <TRouter extends AnyRouter>(
     ) {
       return;
     }
-    if ("jsonrpc" in trpc && trpc.jsonrpc !== "2.0") {
+    if (
+      "jsonrpc" in trpc &&
+      trpc.jsonrpc !== "2.0" &&
+      trpc.jsonrpc !== undefined
+    ) {
       return;
     }
     if (
