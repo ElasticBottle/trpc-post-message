@@ -8,7 +8,6 @@ export type MessagePassingLinkOption = {
   frame: typeof window;
   targetOrigin: string;
   channel?: MessageChannel;
-  transfer?: Transferable[];
 };
 
 export const messagePassingLink = <TRouter extends AnyRouter>(
@@ -20,14 +19,10 @@ export const messagePassingLink = <TRouter extends AnyRouter>(
     type: "window" | "worker";
     addEventListener: (listener: (e: MessageEvent) => any) => void;
     removeEventListener: (listener: (e: MessageEvent) => any) => void;
-    postMessage: (message: any) => void;
+    postMessage: (message: TRPCMessagePassingRequest) => void;
   };
   if ("frame" in opts) {
     let transferItems: Transferable[] = [];
-    if (opts.transfer) {
-      transferItems = transferItems.concat(opts.transfer);
-    }
-
     let addEventListener: (typeof resolvedOpts)["addEventListener"] = (
       eventListener,
     ) => opts.frame.addEventListener("message", eventListener);
@@ -79,7 +74,7 @@ export const messagePassingLink = <TRouter extends AnyRouter>(
 
         try {
           const input = runtime.transformer.serialize(op.input);
-          
+
           const onMessage: Parameters<
             (typeof resolvedOpts)["addEventListener"]
           >[0] = (message) => {
@@ -133,7 +128,7 @@ export const messagePassingLink = <TRouter extends AnyRouter>(
               method: type,
               params: { path, input },
             },
-          } as TRPCMessagePassingRequest);
+          });
         } catch (cause) {
           observer.error(
             new TRPCClientError(
@@ -151,7 +146,7 @@ export const messagePassingLink = <TRouter extends AnyRouter>(
                 jsonrpc: undefined,
                 method: "subscription.stop",
               },
-            } as TRPCMessagePassingRequest);
+            });
           }
         };
       });
