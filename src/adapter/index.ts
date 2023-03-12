@@ -9,35 +9,34 @@ import type { BaseHandlerOptions } from "@trpc/server/dist/internals/types";
 import { isObservable, Unsubscribable } from "@trpc/server/observable";
 
 import type {
-  MessagePassingEventListener,
-  TRPCMessagePassingResponse,
+  PostMessageEventListener,
+  TRPCPostMessageResponse,
 } from "../types";
 import { getErrorFromUnknown } from "./errors";
 
-export type CreateMessagePassingContextOptions = {
+export type CreatePostMessageContextOptions = {
   req: MessageEvent;
   res: undefined;
 };
 
-export type CreateMessagePassingHandlerOptions<TRouter extends AnyRouter> =
-  Pick<
-    BaseHandlerOptions<TRouter, CreateMessagePassingContextOptions["req"]> &
-      NodeHTTPCreateContextOption<
-        TRouter,
-        CreateMessagePassingContextOptions["req"],
-        CreateMessagePassingContextOptions["res"]
-      >,
-    "router" | "createContext" | "onError"
-  > & {
-    postMessage: (args: {
-      message: TRPCMessagePassingResponse;
-      opts: { event?: MessageEvent };
-    }) => void;
-    addEventListener: MessagePassingEventListener;
-  };
+export type CreatePostMessageHandlerOptions<TRouter extends AnyRouter> = Pick<
+  BaseHandlerOptions<TRouter, CreatePostMessageContextOptions["req"]> &
+    NodeHTTPCreateContextOption<
+      TRouter,
+      CreatePostMessageContextOptions["req"],
+      CreatePostMessageContextOptions["res"]
+    >,
+  "router" | "createContext" | "onError"
+> & {
+  postMessage: (args: {
+    message: TRPCPostMessageResponse;
+    opts: { event: MessageEvent };
+  }) => void;
+  addEventListener: PostMessageEventListener;
+};
 
-export const createMessagePassingHandler = <TRouter extends AnyRouter>(
-  opts: CreateMessagePassingHandlerOptions<TRouter>,
+export const createPostMessageHandler = <TRouter extends AnyRouter>(
+  opts: CreatePostMessageHandlerOptions<TRouter>,
 ) => {
   const { router, createContext, onError, addEventListener, postMessage } =
     opts;
@@ -45,9 +44,7 @@ export const createMessagePassingHandler = <TRouter extends AnyRouter>(
 
   const subscriptions = new Map<number | string, Unsubscribable>();
 
-  const onMessage: Parameters<MessagePassingEventListener>[0] = async (
-    event,
-  ) => {
+  const onMessage: Parameters<PostMessageEventListener>[0] = async (event) => {
     // TODO: maybe check origin somehow?
     const { data } = event;
 
@@ -87,7 +84,7 @@ export const createMessagePassingHandler = <TRouter extends AnyRouter>(
       method: string;
     } = trpc;
 
-    const sendResponse = (response: TRPCMessagePassingResponse["trpc"]) => {
+    const sendResponse = (response: TRPCPostMessageResponse["trpc"]) => {
       postMessage({
         message: { trpc: { id, jsonrpc, ...response } },
         opts: {

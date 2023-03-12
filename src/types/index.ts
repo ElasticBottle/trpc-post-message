@@ -4,18 +4,18 @@ import type {
   TRPCResultMessage,
 } from "@trpc/server/rpc";
 
-export type MessagePassingEventListener = (
+export type PostMessageEventListener = (
   listener: (e: MessageEvent) => any,
 ) => void;
 
-export type TRPCMessagePassingRequest = {
+export type TRPCPostMessageRequest = {
   trpc: TRPCClientOutgoingMessage;
 };
 
-export type TRPCMessagePassingSuccessResponse = TRPCResultMessage<any>;
+export type TRPCPostMessageSuccessResponse = TRPCResultMessage<any>;
 
-export type TRPCMessagePassingErrorResponse = TRPCErrorResponse;
+export type TRPCPostMessageErrorResponse = TRPCErrorResponse;
 
-export type TRPCMessagePassingResponse = {
-  trpc: TRPCMessagePassingSuccessResponse | TRPCMessagePassingErrorResponse;
+export type TRPCPostMessageResponse = {
+  trpc: TRPCPostMessageSuccessResponse | TRPCPostMessageErrorResponse;
 };

@@ -1,13 +1,15 @@
 <div align="center">
-  <h1>trpc-message-passing</h1>
-  <a href="https://www.npmjs.com/package/trpc-message-passing"><img src="https://img.shields.io/npm/v/trpc-message-passing.svg?style=flat&color=brightgreen" target="_blank" /></a>
+  <h1>trpc-post-message</h1>
+  <a href="https://www.npmjs.com/package/trpc-post-message"><img src="https://img.shields.io/npm/v/trpc-post-message.svg?style=flat&color=brightgreen" target="_blank" /></a>
   <a href="./LICENSE"><img src="https://img.shields.io/badge/license-MIT-black" /></a>
   <a href="https://trpc.io/discord" target="_blank"><img src="https://img.shields.io/badge/chat-discord-blue.svg" /></a>
   <br />
   <hr />
 </div>
 
-## **[Message Passing](https://developer.mozilla.org/en-US/docs/Web/API/Window/postMessage/) support for [tRPC](https://trpc.io/)** 🧩
+⭐ **Help this repo out, STAR it!** ⭐
+
+## **[Post Message](https://developer.mozilla.org/en-US/docs/Web/API/Window/postMessage/) support for [tRPC](https://trpc.io/)** 🧩
 
 - Easy communication between iframes.
 - Typesafe messaging between parent and child windows
@@ -15,23 +17,23 @@
 
 ## Usage
 
-**1. Install `trpc-message-passing`.**
+**1. Install `trpc-post-message`.**
 
 ```bash
 # npm
-npm install trpc-message-passing
+npm install trpc-post-message
 # yarn
-yarn add trpc-message-passing
+yarn add trpc-post-message
 # pnpm
-pnpm add trpc-message-passing
+pnpm add trpc-post-message
 ```
 
-**2. Add `createMessagePassingHandler` in your background script.**
+**2. Add `createPostMessageHandler` in your background script.**
 
 ```typescript
 // background.ts
 import { initTRPC } from "@trpc/server";
-import { createMessagePassingHandler } from "trpc-message-passing/adapter";
+import { createPostMessageHandler } from "trpc-post-message/adapter";
 
 const t = initTRPC.create({
   isServer: false,
@@ -44,7 +46,7 @@ const appRouter = t.router({
 
 export type AppRouter = typeof appRouter;
 
-createMessagePassingHandler({
+createPostMessageHandler({
   router: appRouter,
   postMessage: ({ message }) => window.postMessage(message, "your_targeted_url"),
   addEventListener: (listener) =>
@@ -57,18 +59,18 @@ createMessagePassingHandler({
 }); /* 👈 */,
 ```
 
-**3. Add a `messagePassingLink` to the client in your content script.**
+**3. Add a `PostMessageLink` to the client in your content script.**
 
 ```typescript
 // content.ts
 import { createTRPCClient } from "@trpc/client";
-import { messagePassingLink } from "trpc-message-passing/link";
+import { PostMessageLink } from "trpc-post-message/link";
 
 import type { AppRouter } from "./background";
 
-export const messagePassingClient = createTRPCClient<AppRouter>({
+export const PostMessageClient = createTRPCClient<AppRouter>({
   links: [
-    messagePassingLink({
+    PostMessageLink({
       postMessage: ({ message }) => window.postMessage(message, "your_targeted_url"),
       addEventListener: (listener) =>
         window.addEventListener("message", (e) => {
@@ -93,7 +95,7 @@ Peer dependencies:
 
 ## Types
 
-### MessagePassingLinkOption
+### PostMessageLinkOption
 
 Please see [full typings here](src/link/index.ts).
 
@@ -102,7 +104,7 @@ Please see [full typings here](src/link/index.ts).
 | `postMessage`      | `Function` | Called to send data to the "server". You must send the `message` param as is | `true`   |
 | `addEventListener` | `Function` | Called to add listener to receive request from the "server".                 | `true`   |
 
-### CreateMessagePassingHandlerOptions
+### CreatePostMessageHandlerOptions
 
 Please see [full typings here](src/adapter/index.ts).
 
@@ -122,4 +124,4 @@ Distributed under the MIT License. See LICENSE for more information.
 
 ## Contact
 
-James Berry - Follow me on Twitter [@jlalmes](https://twitter.com/jlalmes) 💙
+Winston Yeo - Follow me on Twitter [@winston_yeo](https://twitter.com/winston_yeo) 💖

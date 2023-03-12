@@ -1,7 +1,7 @@
 {
-  "name": "trpc-message-passing",
+  "name": "trpc-post-message",
   "version": "0.0.1",
-  "description": "tRPC adapter for message passing",
+  "description": "tRPC adapter for post messages",
   "author": "Winston Yeo <winstonyeo99@yahoo.com>",
   "private": false,
   "license": "MIT",
@@ -14,9 +14,9 @@
     "web workers",
     "service workers"
   ],
-  "homepage": "https://github.com/ElasticBottle/trpc-message-passing",
-  "repository": "github:ElasticBottle/trpc-message-passing",
-  "bugs": "https://github.com/ElasticBottle/trpc-message-passing/issues",
+  "homepage": "https://github.com/ElasticBottle/trpc-post-message",
+  "repository": "github:ElasticBottle/trpc-post-message",
+  "bugs": "https://github.com/ElasticBottle/trpc-post-message/issues",
   "scripts": {
     "test": "tsup && jest --verbose",
     "build": "tsup",

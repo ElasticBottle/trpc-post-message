@@ -3,18 +3,18 @@ import type { AnyRouter } from "@trpc/server";
 import { observable } from "@trpc/server/observable";
 
 import type {
-  MessagePassingEventListener,
-  TRPCMessagePassingRequest,
+  PostMessageEventListener,
+  TRPCPostMessageRequest,
 } from "../types";
 
-export type MessagePassingLinkOption = {
-  postMessage: (args: { message: TRPCMessagePassingRequest }) => void;
-  addEventListener: MessagePassingEventListener;
-  removeEventListener: MessagePassingEventListener;
+export type PostMessageLinkOption = {
+  postMessage: (args: { message: TRPCPostMessageRequest }) => void;
+  addEventListener: PostMessageEventListener;
+  removeEventListener: PostMessageEventListener;
 };
 
-export const messagePassingLink = <TRouter extends AnyRouter>(
-  opts: MessagePassingLinkOption,
+export const PostMessageLink = <TRouter extends AnyRouter>(
+  opts: PostMessageLinkOption,
 ): TRPCLink<TRouter> => {
   console.log("window postMessage link created");
 
@@ -37,7 +37,7 @@ export const messagePassingLink = <TRouter extends AnyRouter>(
         try {
           const input = runtime.transformer.serialize(op.input);
 
-          const onMessage: Parameters<MessagePassingEventListener>[0] = (
+          const onMessage: Parameters<PostMessageEventListener>[0] = (
             event,
           ) => {
             const { data } = event;
@@ -127,7 +127,7 @@ export const messagePassingLink = <TRouter extends AnyRouter>(
 };
 
 const test = [
-  messagePassingLink({
+  PostMessageLink({
     postMessage: ({ message }) => window.postMessage(message, "*"),
     addEventListener: (listener) =>
       window.addEventListener("message", (e) => {

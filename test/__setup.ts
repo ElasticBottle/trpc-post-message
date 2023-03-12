@@ -11,6 +11,9 @@ const getMockChrome = jest.fn(() => {
   const handlerPortOnConnectListeners: OnConnectListener[] = [];
 
   return {
+    addEventListener: jest.fn((event, ) => {
+
+    }),
     runtime: {
       connect: jest.fn(() => {
         const handlerPort = {
@@ -59,8 +62,7 @@ const getMockChrome = jest.fn(() => {
 });
 
 export const resetMocks = () => {
-  // @ts-expect-error mocking chrome
-  global.chrome = getMockChrome();
+  global.window = getMockChrome();
 };
 
 resetMocks();
