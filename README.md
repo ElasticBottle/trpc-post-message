@@ -9,7 +9,7 @@
 
 ⭐ **Help this repo out, STAR it!** ⭐
 
-## **[Post Message](https://developer.mozilla.org/en-US/docs/Web/API/Window/postMessage/) support for [tRPC](https://trpc.io/)** 🧩
+## **[Post Message](https://developer.mozilla.org/en-US/docs/Web/API/Window/postMessage/) support for [tRPC](https://trpc.io/)** 📨
 
 - Easy communication between iframes.
 - Typesafe messaging between parent and child windows
@@ -125,3 +125,7 @@ Distributed under the MIT License. See LICENSE for more information.
 ## Contact
 
 Winston Yeo - Follow me on Twitter [@winston_yeo](https://twitter.com/winston_yeo) 💖
+
+## Acknowledgements
+
+Ths project would not have been possible without [@jlalmes](https://twitter.com/jlalmes) and his well-documented [trpc-chrome](https://github.com/jlalmes/trpc-chrome) package for which this code base was heavily built upon.
