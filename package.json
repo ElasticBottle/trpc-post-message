@@ -20,6 +20,7 @@
   "scripts": {
     "test": "tsup && jest --verbose",
     "build": "tsup",
+    "release": "tsup && pnpm changeset publish",
     "dev": "tsup --watch",
     "lint": "tsc"
   },
