@@ -21,11 +21,11 @@
 
 ```bash
 # npm
-npm install trpc-post-message
+npm install @elasticbottle/trpc-post-message
 # yarn
-yarn add trpc-post-message
+yarn add @elasticbottle/trpc-post-message
 # pnpm
-pnpm add trpc-post-message
+pnpm add @elasticbottle/trpc-post-message
 ```
 
 **2. Add `createPostMessageHandler` in your background script.**
