@@ -1,6 +1,6 @@
 {
   "name": "@elasticbottle/trpc-post-message",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "tRPC adapter for post messages 📨",
   "author": "Winston Yeo <winstonyeo99@yahoo.com>",
   "private": false,
