@@ -6,7 +6,7 @@ import { observable, Unsubscribable } from "@trpc/server/observable";
 import { z } from "zod";
 
 import { createPostMessageHandler } from "../src/adapter";
-import { PostMessageLink } from "../src/link";
+import { postMessageLink } from "../src/link";
 
 afterEach(() => {
   jest.clearAllMocks();
@@ -64,7 +64,7 @@ test("with query", async () => {
   // content
   const trpc = createTRPCProxyClient<typeof appRouter>({
     links: [
-      PostMessageLink({
+      postMessageLink({
         addEventListener(listener) {
           window.addEventListener("message", (event) => {
             listener(event);
@@ -112,7 +112,7 @@ test("with mutation", async () => {
   // content
   const trpc = createTRPCProxyClient<typeof appRouter>({
     links: [
-      PostMessageLink({
+      postMessageLink({
         addEventListener(listener) {
           window.addEventListener("message", (event) => {
             listener(event);
@@ -162,7 +162,7 @@ test("with subscription", async () => {
   // content
   const trpc = createTRPCProxyClient<typeof appRouter>({
     links: [
-      PostMessageLink({
+      postMessageLink({
         addEventListener(listener) {
           window.addEventListener("message", (event) => {
             listener(event);
