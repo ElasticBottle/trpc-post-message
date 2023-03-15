@@ -19,8 +19,9 @@
   "bugs": "https://github.com/ElasticBottle/trpc-post-message/issues",
   "scripts": {
     "test": "tsup && jest --verbose",
-    "build": "tsup",
-    "release": "tsup && pnpm changeset publish",
+    "clean": "rimraf dist && rimraf adapter && rimraf link && rimraf types",
+    "build": "tsup && mv dist/* . && rimraf dist",
+    "release": "pnpm build && pnpm changeset publish",
     "dev": "tsup --watch",
     "lint": "tsc"
   },
@@ -45,6 +46,7 @@
     "jest": "^29.3.1",
     "jest-environment-jsdom": "^29.3.1",
     "prettier": "^2.8.0",
+    "rimraf": "^4.4.0",
     "superjson": "^1.11.0",
     "ts-jest": "^29.0.3",
     "ts-node": "^10.9.1",
