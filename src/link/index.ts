@@ -13,7 +13,7 @@ export type PostMessageLinkOption = {
   removeEventListener: PostMessageEventListener;
 };
 
-export const PostMessageLink = <TRouter extends AnyRouter>(
+export const postMessageLink = <TRouter extends AnyRouter>(
   opts: PostMessageLinkOption,
 ): TRPCLink<TRouter> => {
   return (runtime) => {
