@@ -66,9 +66,7 @@ test("with query", async () => {
     links: [
       postMessageLink({
         addEventListener(listener) {
-          window.addEventListener("message", (event) => {
-            listener(event);
-          });
+          window.addEventListener("message", listener);
         },
         postMessage({ message }) {
           window.postMessage(message, "*");
@@ -82,9 +80,11 @@ test("with query", async () => {
 
   const data1 = await trpc.echoQuery.query({ payload: "query1" });
   expect(data1).toEqual({ payload: "query1" });
+  expect(window.removeEventListener).toHaveBeenCalledTimes(1);
 
   const data2 = await trpc.nestedRouter.echoQuery.query({ payload: "query2" });
   expect(data2).toEqual({ payload: "query2" });
+  expect(window.removeEventListener).toHaveBeenCalledTimes(2);
 
   const [data3, data4] = await Promise.all([
     trpc.echoQuery.query({ payload: "query3" }),
@@ -92,6 +92,7 @@ test("with query", async () => {
   ]);
   expect(data3).toEqual({ payload: "query3" });
   expect(data4).toEqual({ payload: "query4" });
+  expect(window.removeEventListener).toHaveBeenCalledTimes(4);
 });
 
 test("with mutation", async () => {
@@ -99,9 +100,7 @@ test("with mutation", async () => {
   createPostMessageHandler({
     router: appRouter,
     addEventListener(listener) {
-      window.addEventListener("message", (event) => {
-        listener(event);
-      });
+      window.addEventListener("message", listener);
     },
     postMessage({ message }) {
       window.postMessage(message, "*");
@@ -114,14 +113,17 @@ test("with mutation", async () => {
     links: [
       postMessageLink({
         addEventListener(listener) {
-          window.addEventListener("message", (event) => {
+          const customEventListener = (event: MessageEvent) => {
             listener(event);
-          });
+          };
+          window.addEventListener("message", customEventListener);
+          return customEventListener;
         },
         postMessage({ message }) {
           window.postMessage(message, "*");
         },
         removeEventListener(listener) {
+          //                   ^ This will be a reference to the customEventListener above
           window.removeEventListener("message", listener);
         },
       }),
@@ -149,9 +151,7 @@ test("with subscription", async () => {
   createPostMessageHandler({
     router: appRouter,
     addEventListener(listener) {
-      window.addEventListener("message", (event) => {
-        listener(event);
-      });
+      window.addEventListener("message", listener);
     },
     postMessage({ message }) {
       window.postMessage(message, "*");
@@ -164,9 +164,7 @@ test("with subscription", async () => {
     links: [
       postMessageLink({
         addEventListener(listener) {
-          window.addEventListener("message", (event) => {
-            listener(event);
-          });
+          window.addEventListener("message", listener);
         },
         postMessage({ message }) {
           window.postMessage(message, "*");
@@ -191,7 +189,9 @@ test("with subscription", async () => {
           onDataMock(data);
           resolve(subscription);
         },
-        onComplete: onCompleteMock,
+        onComplete: () => {
+          onCompleteMock();
+        },
         onError: onErrorMock,
         onStarted: onStartedMock,
         onStopped: onStoppedMock,
