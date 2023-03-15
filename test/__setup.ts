@@ -16,7 +16,11 @@ const getMockWindow = jest.fn(() => {
     });
   jest
     .spyOn(window, "removeEventListener")
-    .mockImplementation((event, handler, options) => {});
+    .mockImplementation((event, handler, options) => {
+      onEventListeners[event] =
+        onEventListeners[event]?.filter((listener) => handler !== listener) ||
+        [];
+    });
   jest.spyOn(window, "postMessage").mockImplementation((message, options) => {
     const event = new MessageEvent("", {
       data: message,

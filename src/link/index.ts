@@ -26,7 +26,6 @@ export const postMessageLink = <TRouter extends AnyRouter>(
         // why do we observe.complete immediately?
         const listeners: (() => void)[] = [];
         const { id, type, path } = op;
-
         try {
           const input = runtime.transformer.serialize(op.input);
 
@@ -83,8 +82,12 @@ export const postMessageLink = <TRouter extends AnyRouter>(
             }
           };
 
-          addEventListener(onMessage);
-          listeners.push(() => removeEventListener(onMessage));
+          const maybeNewListener = addEventListener(onMessage);
+          listeners.push(
+            maybeNewListener
+              ? () => removeEventListener(maybeNewListener)
+              : () => removeEventListener(onMessage),
+          );
 
           postMessage({
             message: {
@@ -105,7 +108,6 @@ export const postMessageLink = <TRouter extends AnyRouter>(
         }
 
         return () => {
-          listeners.forEach((unsub) => unsub());
           if (type === "subscription") {
             postMessage({
               message: {
@@ -117,6 +119,7 @@ export const postMessageLink = <TRouter extends AnyRouter>(
               },
             });
           }
+          listeners.forEach((unsub) => unsub());
         };
       });
     };

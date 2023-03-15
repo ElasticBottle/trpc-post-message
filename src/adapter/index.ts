@@ -151,6 +151,20 @@ export const createPostMessageHandler = <TRouter extends AnyRouter>(
         });
       }
 
+      if (subscriptions.has(id)) {
+        subscriptions.get(id)?.unsubscribe();
+        sendResponse({
+          result: {
+            type: "stopped",
+          },
+        });
+        subscriptions.delete(id);
+        throw new TRPCError({
+          message: `Duplicate id ${id}`,
+          code: "BAD_REQUEST",
+        });
+      }
+
       const subscription = result.subscribe({
         next: (data) => {
           sendResponse({
@@ -190,19 +204,6 @@ export const createPostMessageHandler = <TRouter extends AnyRouter>(
           });
         },
       });
-
-      if (subscriptions.has(id)) {
-        subscription.unsubscribe();
-        sendResponse({
-          result: {
-            type: "stopped",
-          },
-        });
-        throw new TRPCError({
-          message: `Duplicate id ${id}`,
-          code: "BAD_REQUEST",
-        });
-      }
       subscriptions.set(id, subscription);
 
       sendResponse({

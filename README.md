@@ -72,13 +72,17 @@ export const PostMessageClient = createTRPCClient<AppRouter>({
   links: [
     PostMessageLink({
       postMessage: ({ message }) => window.postMessage(message, "your_targeted_url"),
-      addEventListener: (listener) =>
-        window.addEventListener("message", (e) => {
+      addEventListener: (listener) => {
+        const customerListener = (e) => {
           if (e.origin !== 'your_whitelisted_domain') {
             return;
           }
           listener(e);
-        }),
+        }
+        window.addEventListener("message", customerListener)
+        // if you don't return anything it is assumed that the default listener was used
+        return customerListener;
+      },
       removeEventListener: (listener) =>
         window.removeEventListener("message", listener),
     }),

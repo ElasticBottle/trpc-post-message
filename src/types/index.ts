@@ -4,9 +4,10 @@ import type {
   TRPCResultMessage,
 } from "@trpc/server/rpc";
 
+export type EventListener = (e: MessageEvent) => any;
 export type PostMessageEventListener = (
-  listener: (e: MessageEvent) => any,
-) => void;
+  listener: EventListener,
+) => EventListener | void;
 
 export type TRPCPostMessageRequest = {
   trpc: TRPCClientOutgoingMessage;
