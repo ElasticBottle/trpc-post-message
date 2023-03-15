@@ -1,5 +1,11 @@
 # @elasticbottle/trpc-post-message
 
+## 0.0.4
+
+### Patch Changes
+
+- 1d8eb22: fix: event listeners not being removed properly
+
 ## 0.0.3
 
 ### Patch Changes
