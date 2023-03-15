@@ -33,7 +33,7 @@ pnpm add @elasticbottle/trpc-post-message
 ```typescript
 // background.ts
 import { initTRPC } from "@trpc/server";
-import { createPostMessageHandler } from "trpc-post-message/adapter";
+import { createPostMessageHandler } from "@elasticbottle/trpc-post-message/adapter";
 
 const t = initTRPC.create({
   isServer: false,
@@ -64,7 +64,7 @@ createPostMessageHandler({
 ```typescript
 // content.ts
 import { createTRPCClient } from "@trpc/client";
-import { PostMessageLink } from "trpc-post-message/link";
+import { PostMessageLink } from "@elasticbottle/trpc-post-message/link";
 
 import type { AppRouter } from "./background";
 
